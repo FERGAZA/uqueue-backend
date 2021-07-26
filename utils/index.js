@@ -1,4 +1,7 @@
 const mongoose = require('mongoose')
+const socket = require('socket.io')
+const { Room } = require('../models')
+var io
 
 module.exports = {
   connect_mongo: async uri => {
@@ -18,4 +21,17 @@ module.exports = {
     while (w.includes(toReplace)) w = w.replace(toReplace, newChar)
     return w
   },
+  initIo: server => {
+    io = socket(server)
+    io.on('connection', socket => socket.on('modify-queue', data => {
+      const { queue } = data 
+      const room = { queue: queue && typeof queue === 'string' ? replaceAll(queue, ' ').split(',') : queue || [] }
+    
+      Room.updateOne({ _id: id }, room, (err, res) => {
+        if (err) catchErr(err, res)
+        else io.sockets.emit('send-queue', queue)
+      })
+    }))
+  },
+  getIo: () => io,
 }

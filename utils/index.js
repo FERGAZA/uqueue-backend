@@ -25,11 +25,16 @@ module.exports = {
     io = socket(server)
     io.on('connection', socket => socket.on('modify-queue', data => {
       const { queue } = data 
+      const { isSkiping } = data
       const room = { queue: queue && typeof queue === 'string' ? replaceAll(queue, ' ').split(',') : queue || [] }
     
       Room.updateOne({ _id: id }, room, (err, res) => {
         if (err) catchErr(err, res)
-        else io.sockets.emit('send-queue', queue)
+        else {
+          const { sockets } = io
+          sockets.emit('send-queue', queue)
+          if (isSkiping) sockets.emit('skip', 'skip!')
+        }
       })
     }))
   },

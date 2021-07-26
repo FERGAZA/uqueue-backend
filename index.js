@@ -7,7 +7,7 @@ const dotenv = require('dotenv').config()
 const server = express()
 const cl1b = require('./cl1b')
 const actions = require('./actions')
-const { connect_mongo } = require('./utils')
+const { connect_mongo, initIo } = require('./utils')
 const app = {
   mongoURI: process.env.MONGO_URI || 'mongodb://localhost/player',
   port: {
@@ -45,6 +45,7 @@ actions.forEach(action => {
 })
 
 connect_mongo(app.mongoURI)
+initIo(http)
 
 //https.createServer(app.ssl, server)
   //.listen(app.port.https, portHook(app.port.https))

@@ -1,10 +1,10 @@
 const express = require('express')
 //const path = require('path')
 //const fs = require('fs')
-const http = require('http')
 //const https = require('https')
 const dotenv = require('dotenv').config()
 const server = express()
+const http = require('http').Server(server)
 const cl1b = require('./cl1b')
 const actions = require('./actions')
 const { connect_mongo, initIo } = require('./utils')
@@ -47,7 +47,8 @@ actions.forEach(action => {
 connect_mongo(app.mongoURI)
 initIo(http)
 
+server.use('/', express.static('frontend'))
+
 //https.createServer(app.ssl, server)
   //.listen(app.port.https, portHook(app.port.https))
-http.createServer(server)
-  .listen(app.port.http, cl1b.portHook(app.port.http))
+http.listen(app.port.http, cl1b.portHook(app.port.http))

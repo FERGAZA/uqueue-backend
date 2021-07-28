@@ -1,6 +1,7 @@
 const mongoose = require('mongoose')
 const socket = require('socket.io')
-const { Room } = require('../models')
+const queue = require('./sockets/queue')
+const time = require('./sockets/time')
 var io
 
 module.exports = {
@@ -23,20 +24,10 @@ module.exports = {
   },
   initIo: server => {
     io = socket(server)
-    io.on('connection', socket => socket.on('modify-queue', data => {
-      const { queue } = data 
-      const { isSkiping } = data
-      const room = { queue: queue && typeof queue === 'string' ? replaceAll(queue, ' ').split(',') : queue || [] }
-    
-      Room.updateOne({ _id: id }, room, (err, res) => {
-        if (err) catchErr(err, res)
-        else {
-          const { sockets } = io
-          sockets.emit('send-queue', queue)
-          if (isSkiping) sockets.emit('skip', 'skip!')
-        }
-      })
-    }))
+    io.on('connection', socket => {
+      queue(socket, io)
+      time(socket, io)
+    })
   },
   getIo: () => io,
 }

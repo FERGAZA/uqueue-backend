@@ -24,7 +24,7 @@ module.exports = [
     callback: (req, res) => {
       const { id } = req.params
       const { queue } = req.body
-      const room = { queue: queue && typeof queue ===  'string' ? replaceAll(queue, ' ').split(',') : queue || [] }
+      const room = { queue: queue && typeof queue === 'string' ? replaceAll(queue, ' ').split(',') : queue || [] }
 
       Room.updateOne({ _id: id }, room, (err, result) => {
         if (err) catchErr(err, res)
@@ -40,12 +40,12 @@ module.exports = [
 
       const nRoom = new Room()
 
-      nRoom.name = name
-      nRoom.queue = queue && typeof queue ===  'string' ? replaceAll(queue, ' ').split(',') : queue || []
+      nRoom.name = name || ""
+      nRoom.queue = queue && typeof queue === 'string' ? replaceAll(queue, ' ').split(',') : queue || []
 
       nRoom.save((err, data) => {
         if (err) catchErr(err, res)
-        else res.send(`The Room ${data._id} has been created!`).status(200)
+        else res.send({ msg: `The Room ${data._id} has been created!`, data }).status(200)
       })
     }
   },
